@@ -250,14 +250,15 @@ while True:
             if button1_led.value == False:
                 snapshotchangeto(2)
                 button1_led.value = True
+                time.sleep(0.2)
             else:
                 snapshotchangeto(1)
-                button1_led.value = False:
-             
+                button1_led.value = False
+                time.sleep(0.2)
         elif button2.value == False:
-            #snapshotchangeto(2)
+            snapshotchangeto(2)
         elif button3.value == False:
-            #snapshotchangeto(3)
+            snapshotchangeto(3)
         # Add a little delay time for buttons to stabalize after release
         time.sleep(0.06)
 
