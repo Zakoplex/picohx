@@ -256,9 +256,23 @@ while True:
                 button1_led.value = False
                 time.sleep(0.2)
         elif button2.value == False:
-            snapshotchangeto(2)
+            if button2_led.value == False:
+                midiuart.write(bytes([0xB0, 103, 127]))
+                button2_led.value = True
+                time.sleep(0.2)
+            else:
+                midiuart.write(bytes([0xB0, 103, 0]))
+                button2_led.value = False
+                time.sleep(0.2)
         elif button3.value == False:
-            snapshotchangeto(3)
+            if button3_led.value == False:
+                midiuart.write(bytes([0xB0, 104, 127]))
+                button3_led.value = True
+                time.sleep(0.2)
+            else:
+                midiuart.write(bytes([0xB0, 104, 0]))
+                button3_led.value = False
+                time.sleep(0.2)
         # Add a little delay time for buttons to stabalize after release
         time.sleep(0.06)
 
