@@ -17,10 +17,10 @@ CC69 = 0 - Select snapshot 1
 CC69 = 1 - Select snapshot 2
 CC69 = 2 - Select snapshot 3
 
-CC80 = 0-127 - Dial 1 Potentiometer. (Reverb mix)  Do I need to divide by 100.  to control mix from 0-100?
-CC81 = 0-127 - Dial 2 Potentiometer. (Volume mix)
-CC90 = 0 or 127 - Dial 1 on low value can bypass an effect 
-CC91 - 0 or 127 - Dial 2 on low value can bypass an effect
+CC110 (was:CC80) = 0-127 - Dial 1 Potentiometer. (Reverb mix)  Do I need to divide by 100.  to control mix from 0-100?
+CC112 (was:CC81) = 0-127 - Dial 2 Potentiometer. (Volume mix)
+CC111 (was:CC90) = 0 or 127 - Dial 1 on low value can bypass an effect 
+CC113 (was:CC91) - 0 or 127 - Dial 2 on low value can bypass an effect
 
 
 CC100 = 0 or 127 - Switch 1 Returns a true or false value
@@ -61,6 +61,7 @@ midiuart.write(bytes([0xB0, 101, i])) # CC101 = 0 or 127 on or off switch 2
 Midi Tutorial:
 
 https://learn.sparkfun.com/tutorials/midi-tutorial/all
+
 
 
 

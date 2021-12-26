@@ -186,20 +186,20 @@ def switchmidiupdate():
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
     print('%%%%%%%%%%%%%%%%% Dials Midi Update')
-    midiuart.write(bytes([0xB0, 80, dial1_midivalue]))
-    midiuart.write(bytes([0xB0, 81, dial2_midivalue]))
+    midiuart.write(bytes([0xB0, 101, dial1_midivalue]))
+    midiuart.write(bytes([0xB0, 112, dial2_midivalue]))
     # update dial effect bypass state
     if (dial1_midivalue < 2):
-        midiuart.write(bytes([0xB0, 90, 0]))
+        midiuart.write(bytes([0xB0, 111, 0]))
         print('DIAL 1 MIDI BLOCK BYPASSED CC90')
     else:
-        midiuart.write(bytes([0xB0, 90, 127]))
+        midiuart.write(bytes([0xB0, 111, 127]))
         print('DIAL 1 MIDI BLOCK ACTTVE CC90')
     if (dial2_midivalue < 2):
-        midiuart.write(bytes([0xB0, 91, 0]))
+        midiuart.write(bytes([0xB0, 113, 0]))
         print('DIAL 2 MIDI BLOCK BYPASSED CC91')
     else:
-        midiuart.write(bytes([0xB0, 91, 127]))
+        midiuart.write(bytes([0xB0, 113, 127]))
         print('DIAL 2 MIDI BLOCK ACTIVE CC91')
 
 # Program start
