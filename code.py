@@ -191,16 +191,16 @@ def dialmidiupdate():
     # update dial effect bypass state
     if (dial1_midivalue < 2):
         midiuart.write(bytes([0xB0, 111, 0]))
-        print('DIAL 1 MIDI BLOCK BYPASSED CC90')
+        print('DIAL 1 MIDI BLOCK BYPASSED CC111')
     else:
         midiuart.write(bytes([0xB0, 111, 127]))
-        print('DIAL 1 MIDI BLOCK ACTTVE CC90')
+        print('DIAL 1 MIDI BLOCK ACTTVE CC111')
     if (dial2_midivalue < 2):
         midiuart.write(bytes([0xB0, 113, 0]))
-        print('DIAL 2 MIDI BLOCK BYPASSED CC91')
+        print('DIAL 2 MIDI BLOCK BYPASSED CC113')
     else:
         midiuart.write(bytes([0xB0, 113, 127]))
-        print('DIAL 2 MIDI BLOCK ACTIVE CC91')
+        print('DIAL 2 MIDI BLOCK ACTIVE CC113')
 
 # Program start
 
