@@ -3,7 +3,7 @@ picohx
 Test version to try using diffent button layout.\
 
 Use Switch 1 to toggle snapshot 1 / 2
-Use switch 2 to set an effect on/off on CC103
+Use switch 2 to set to work as tap tempo button
 Use switch 3 to swap between Patch 1, Patch 2, Patch 3, Patch 4
 
 Circutipython midi foot controller for HX Stomp.

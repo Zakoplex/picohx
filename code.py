@@ -76,6 +76,7 @@ midiuart = busio.UART(tx=board.GP4, rx=board.GP5, baudrate=31250)
 
 currentsnapshot = 1
 currentpatch = 0
+tunerenabled = True
 
 
 # Function Definitions:
@@ -258,14 +259,28 @@ while True:
                 button1_led.value = False
                 time.sleep(0.2)
         elif button2.value == False:
-            if button2_led.value == False:
-                midiuart.write(bytes([0xB0, 103, 127]))
-                button2_led.value = True
-                time.sleep(0.2)
-            else:
-                midiuart.write(bytes([0xB0, 103, 0]))
-                button2_led.value = False
-                time.sleep(0.2)
+            #Setup as a Tap Tempo
+            #Send Tap Message
+            midiuart.write(bytes([0xB0, 64, 127]))
+            print('TAP Sent')
+            # Turn off tuner on first press of tap button if it is on
+            if tunerenabled == True:
+                print('Switching Tuner mode OFF')
+                midiuart.write(bytes([0xB0, 68, 0]))
+                tunerenabled = False
+            button2_led.value = True
+            time.sleep(0.05)
+            #button help variable to track length of hold and turn on tuner when reached
+            buttonheld = 0
+            while button2.value == False:
+                buttonheld += 1
+                time.sleep(0.05)
+                if buttonheld == 20:
+                    print('Switching Tuner mode ON')
+                    midiuart.write(bytes([0xB0, 68, 127]))
+                    tunerenabled = True
+            button2_led.value = False
+            
         elif button3.value == False:
             if button3_led.value == False:
                 if currentpatch < 4:
