@@ -75,6 +75,8 @@ switch3_led.direction = digitalio.Direction.OUTPUT
 midiuart = busio.UART(tx=board.GP4, rx=board.GP5, baudrate=31250)
 
 currentsnapshot = 1
+currentpatch = 0
+
 
 # Function Definitions:
 
@@ -266,13 +268,15 @@ while True:
                 time.sleep(0.2)
         elif button3.value == False:
             if button3_led.value == False:
-                midiuart.write(bytes([0xB0, 104, 127]))
+                if currentpatch < 4:
+                    currentpatch +=1
+                else:
+                    currentpatch = 0
+                midiuart.write(bytes([0xC0, currentpatch]))
                 button3_led.value = True
-                time.sleep(0.2)
-            else:
-                midiuart.write(bytes([0xB0, 104, 0]))
-                button3_led.value = False
-                time.sleep(0.2)
+                print('CURRENTPATCH: ' + str(currentpatch))
+                time.sleep(0.08)
+
         # Add a little delay time for buttons to stabalize after release
         time.sleep(0.06)
 
