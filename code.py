@@ -7,14 +7,23 @@ import busio
 # ################ GLOBALS ##################
 
 # Buttons
-button1 = digitalio.DigitalInOut(board.GP6)
+button1 = digitalio.DigitalInOut(board.GP1)
 button1.switch_to_input(pull=digitalio.Pull.UP)
 
-button2 = digitalio.DigitalInOut(board.GP7)
+button2 = digitalio.DigitalInOut(board.GP0)
 button2.switch_to_input(pull=digitalio.Pull.UP)
 
-button3 = digitalio.DigitalInOut(board.GP8)
+button3 = digitalio.DigitalInOut(board.GP2)
 button3.switch_to_input(pull=digitalio.Pull.UP)
+
+button4 = digitalio.DigitalInOut(board.GP3)
+button4.switch_to_input(pull=digitalio.Pull.UP)
+
+button5 = digitalio.DigitalInOut(board.GP6)
+button5.switch_to_input(pull=digitalio.Pull.UP)
+
+button6 = digitalio.DigitalInOut(board.GP7)
+button6.switch_to_input(pull=digitalio.Pull.UP)
 
 
 # Potentiometers
@@ -36,40 +45,35 @@ dial2_stepvalue = 300
 dial2_maxvalue = 63000
 dial2_midivalue = 64
 
-# SWITCHES
-switch1 = digitalio.DigitalInOut(board.GP14)
-switch1.switch_to_input(pull=digitalio.Pull.UP)
-switch1_lastvalue = switch1.value
 
-switch2 = digitalio.DigitalInOut(board.GP15)
-switch2.switch_to_input(pull=digitalio.Pull.UP)
-switch2_lastvalue = switch2.value
-
-switch3 = digitalio.DigitalInOut(board.GP12)
-switch3.switch_to_input(pull=digitalio.Pull.UP)
-switch3_lastvalue = switch3.value
-
-# LEDS
+# LEDS for board & Dial 1 & 2
 led0 = digitalio.DigitalInOut(board.LED)
 led0.direction = digitalio.Direction.OUTPUT
 
-button1_led = digitalio.DigitalInOut(board.GP9)
+button1_led = digitalio.DigitalInOut(board.GP8)
 button1_led.direction = digitalio.Direction.OUTPUT
 
-button2_led = digitalio.DigitalInOut(board.GP10)
+button2_led = digitalio.DigitalInOut(board.GP9)
 button2_led.direction = digitalio.Direction.OUTPUT
 
-button3_led = digitalio.DigitalInOut(board.GP11)
+button3_led = digitalio.DigitalInOut(board.GP10)
 button3_led.direction = digitalio.Direction.OUTPUT
 
-switch1_led = digitalio.DigitalInOut(board.GP20)
-switch1_led.direction = digitalio.Direction.OUTPUT
+button4_led = digitalio.DigitalInOut(board.GP11)
+button4_led.direction = digitalio.Direction.OUTPUT
 
-switch2_led = digitalio.DigitalInOut(board.GP21)
-switch2_led.direction = digitalio.Direction.OUTPUT
+button5_led = digitalio.DigitalInOut(board.GP12)
+button5_led.direction = digitalio.Direction.OUTPUT
 
-switch3_led = digitalio.DigitalInOut(board.GP13)
-switch3_led.direction = digitalio.Direction.OUTPUT
+button6_led = digitalio.DigitalInOut(board.GP13)
+button6_led.direction = digitalio.Direction.OUTPUT
+
+dial1_led = digitalio.DigitalInOut(board.GP14)
+dial1_led.direction = digitalio.Direction.OUTPUT
+
+dial2_led = digitalio.DigitalInOut(board.GP15)
+dial2_led.direction = digitalio.Direction.OUTPUT
+
 
 # UART - MIDI port Send Only
 midiuart = busio.UART(tx=board.GP4, rx=board.GP5, baudrate=31250)
@@ -81,58 +85,42 @@ tunerenabled = True
 
 # Function Definitions:
 
-# serial debugging logger
-def zakserialdebug(sleeptime):
-    print('')
-    print('dial1_currentvalue: ' + str(dial1_currentvalue))
-    print('dial1changevalue: ' + str(dial1changevalue))
-    print('Dial1 minvalue: ' + str(dial1_minvalue) + ' Dial1 Maxvalue: ' + str(dial1_maxvalue) + ' Dial1 stepvalue: ' + str(dial1_stepvalue)
-    + ' Dial1 lastvalue: ' + str(dial1_lastvalue) + ' Dial1 midivalue: ' + str(dial1_midivalue) + ' Dial1 raw: ' + str(dial1.value))
-    print('')
-    print('dial2_currentvalue: ' + str(dial2_currentvalue))
-    print('dial2changevalue: ' + str(dial2changevalue))
-    print('Dial2 minvalue: ' + str(dial2_minvalue) + ' Dial2 Maxvalue: ' + str(dial2_maxvalue) + ' Dial2 stepvalue: ' + str(dial2_stepvalue)
-    + ' Dial2 lastvalue: ' + str(dial2_lastvalue) + ' Dial2 midivalue: ' + str(dial2_midivalue) + ' Dial2 raw: ' + str(dial2.value))
-    print('')
-    print('Button1: ' + str(button1.value))
-    print('Button2: ' + str(button2.value))
-    print('Button3: ' + str(button3.value))
-    print('')
-    print('Switch1: ' + str(switch1.value))
-    print('Switch2: ' + str(switch2.value))
-    print('')
-    time.sleep(sleeptime)
 
 # Lightshow for startup.
 def blinkies():
     for x in range (0,10):
-        led0.value = True
+        dial1_led.value = True
+        time.sleep(0.0015)
         button1_led.value = True
         time.sleep(0.0015)
-        switch1_led.value = True
-        time.sleep(0.015)
         button2_led.value = True
-        time.sleep(0.015)
-        switch2_led.value = True
         time.sleep(0.015)
         button3_led.value = True
         time.sleep(0.015)
-        switch3_led.value = True
+        button4_led.value = True
+        time.sleep(0.015)
+        button5_led.value = True
+        time.sleep(0.015)
+        button6_led.value = True
+        time.sleep(0.015)
+        dial2_led.value = True
+        time.sleep(0.015)
+        dial1_led.value = False
         time.sleep(0.015)
         button1_led.value = False
         time.sleep(0.015)
-        switch1_led.value = False
-        time.sleep(0.015)
         button2_led.value = False
-        time.sleep(0.015)
-        switch2_led.value = False
         time.sleep(0.015)
         button3_led.value = False
         time.sleep(0.015)
-        switch3_led.value = False
+        button4_led.value = False
         time.sleep(0.015)
-        led0.value = False
-        time.sleep(0.02)
+        button5_led.value = False
+        time.sleep(0.015)
+        button6_led.value = False
+        time.sleep(0.015)
+        dial2_led.value = False
+        time.sleep(0.015)
 
 def snapshotchangeto(i):
     global currentsnapshot
@@ -148,43 +136,12 @@ def ledflash():
         button1_led.value = True
         button2_led.value = True
         button3_led.value = True
-        switch1_led.value = True
-        switch2_led.value = True
         time.sleep(0.02)
         button1_led.value = False
         button2_led.value = False
         button3_led.value = False
-        switch1_led.value = False
-        switch2_led.value = False
         time.sleep(0.02)
 
-def switchmidiupdate():
-    print('%%%%%%%%%%%%% Switch Midi Update')
-    # CC100 = 0 or 127 on or off switch 1
-    if switch1.value == True:
-        midiuart.write(bytes([0xB0, 100, 127]))
-        switch1_led.value = True
-        print('%%%%%%%%%%%%% Switch 1 ON')
-    else:
-        midiuart.write(bytes([0xB0, 100, 0]))
-        switch1_led.value = False
-        print('%%%%%%%%%%%%% Switch 1 OFF')
-    if switch2.value == True:
-        midiuart.write(bytes([0xB0, 101, 127]))
-        switch2_led.value = True
-        print('%%%%%%%%%%%%% Switch 2 ON')
-    else:
-        midiuart.write(bytes([0xB0, 101, 0]))
-        switch2_led.value = False
-        print('%%%%%%%%%%%%% Switch 2 OFF')
-    if switch3.value == True:
-        midiuart.write(bytes([0xB0, 102, 127]))
-        switch3_led.value = True
-        print('%%%%%%%%%%%%% Switch 3 ON')
-    else:
-        midiuart.write(bytes([0xB0, 102, 0]))
-        switch3_led.value = False
-        print('%%%%%%%%%%%%% Switch 3 OFF')
 
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
@@ -212,7 +169,6 @@ blinkies()
 led0.value = True # use onboard led as a power indicator
 
 snapshotchangeto(1)
-switchmidiupdate()
 dialmidiupdate()
 
 #counter = 1 # Debug counter - TODO TODO TODO delete once done testing
@@ -227,7 +183,7 @@ while True:
 
     # False indicates a button press
     # Read the status of all buttons and decided what the user is trying to do
-    if button1.value == False or button2.value == False or button3.value == False:
+    if button1.value == False or button2.value == False or button3.value == False or button4.value == False or button5.value == False or button6.value == False:
         print('****************reading buttons')
         # Add a little delay time to allow physical button press to stabalize
         time.sleep(0.02)
@@ -346,24 +302,6 @@ while True:
         # update dial effect bypass state
 
 
-# THIRD STEP SWITCH PROCESSING:
-    # read current switch values and if they are different than the last value then send a midi message
-    if switch1.value != switch1_lastvalue:
-        print('%%%%%%%%%%%%%%%Switch1 changed')
-        switchmidiupdate()
-        #udate state for next iteration
-        switch1_lastvalue = switch1.value
-        time.sleep(0.04)
-    if switch2.value != switch2_lastvalue:
-       print('%%%%%%%%%%%%%%%%Switch2 changed')
-       switchmidiupdate()
-       switch2_lastvalue = switch2.value
-       time.sleep(0.04)
-    if switch3.value != switch3_lastvalue:
-       print('%%%%%%%%%%%%%%%%Switch3 changed')
-       switchmidiupdate()
-       switch3_lastvalue = switch3.value
-       time.sleep(0.04)
 # Debugging section for serial monitoring
     #counter += 1
     #print(counter)

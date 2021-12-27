@@ -33,20 +33,8 @@ Dial 1: GP28
 Dial 2: GP27
 Common Reference Voltage: Pin 35 - ADC_VREF
 
-Switch 1: GP14
-Switch 1 Led: GP20
-Switch 2: GP15
-Switch 2 Led: GP21
-Switch 3: GP12
-Switch 3 Led: GP13
+MIDI Pins: GP4 send, GP5 receive (not currently used)
 
-
-Button 1: GP6
-Button 1 Led: GP9
-Button 2: GP7
-Button 2 Led: GP10
-Button 3: GP8
-Button 3 Led: GP11
 
 
 Midi Send Notes:
