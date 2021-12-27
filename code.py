@@ -176,6 +176,7 @@ while True:
         if button1.value == False:
         # BUTTON FOR CC100
         # CC100 = 0 or 127 on or off switch 1
+            print('**** Button 1 pressed')
             if button1_led.value == False:
                 midiuart.write(bytes([0xB0, 100, 127]))
                 button1_led.value = True
@@ -186,6 +187,7 @@ while True:
         elif button2.value == False:
         # Button for CC101
         # CC101 = 0 or 127 on or off switch 2
+            print('**** Button 2 pressed')
             if button2_led.value == False:
                 midiuart.write(bytes([0xB0, 101, 127]))
                 button2_led.value = True
@@ -196,6 +198,7 @@ while True:
         elif button3.value == False:
         # Button for CC102
         # CC102 = 0 or 127 on or off switch 3
+            print('**** Button 3 pressed')
             if button3_led.value == False:
                 midiuart.write(bytes([0xB0, 102, 127]))
                 button3_led.value = True
@@ -205,6 +208,7 @@ while True:
                 
         elif button4.value == False:
         # BUTTON FOR SNAPSHOTS
+            print('**** Button 4 pressed')
             if button4_led.value == False:
                 snapshotchangeto(2)
                 button4_led.value = True
@@ -216,6 +220,7 @@ while True:
 
         elif button5.value == False:
         # Button for PATCHES
+            print('**** Button 5 pressed')
             if currentpatch < 4:
                 currentpatch +=1
             else:
@@ -227,6 +232,7 @@ while True:
 
         elif button6.value == False:
         # Button for TAP / TUNER
+            print('**** Button 6 pressed')
             #Send Tap Message
             midiuart.write(bytes([0xB0, 64, 127]))
             print('TAP Sent')
