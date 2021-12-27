@@ -85,7 +85,6 @@ tunerenabled = True
 
 # Function Definitions:
 
-
 # Lightshow for startup.
 def blinkies():
     for x in range (0,10):
@@ -131,17 +130,6 @@ def snapshotchangeto(i):
     midiuart.write(bytes([0xB0, 69, (i-1)])) # CC69 = 0,1, or 2 TEST THIS TODO TODO TODO
     time.sleep(0.01) # small delay to prevent multiple sends from human latency of foot press
 
-def ledflash():
-    for x in range(0,4):
-        button1_led.value = True
-        button2_led.value = True
-        button3_led.value = True
-        time.sleep(0.02)
-        button1_led.value = False
-        button2_led.value = False
-        button3_led.value = False
-        time.sleep(0.02)
-
 
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
@@ -171,15 +159,12 @@ led0.value = True # use onboard led as a power indicator
 snapshotchangeto(1)
 dialmidiupdate()
 
-#counter = 1 # Debug counter - TODO TODO TODO delete once done testing
-
 # Main program run loop
 while True:
     time.sleep(0.005) # set rate of loop to 1/200 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
 
-# FIRST STEP, READ BUTTONS AND PROCESS SNAPSHOTS OR PROGRAM CHANGES
+# FIRST STEP, READ BUTTONS AND PROCESS SNAPSHOTS, PROGRAM CHANGES, CONTINUOUS CONTROLS
 # SECOND STEP, READ AND PROCESS DIALS AND SEND APPROPREATE CC MESSAGES
-# THIRD STEP, READ AND PROCESS SWITCHES AND SEND APPROPRATE CC MESSAGES
 
     # False indicates a button press
     # Read the status of all buttons and decided what the user is trying to do
@@ -188,34 +173,60 @@ while True:
         # Add a little delay time to allow physical button press to stabalize
         time.sleep(0.02)
 
-        # detect for multiple presses first.  Then for single presses
-        if button1.value == False and button2.value == False:
-            print('%%%%%%%%%%%%%%%%%%Previous Patch selected.............')
-            midiuart.write(bytes([0xB0, 72, 0])) # CC72 = 127 TEST THIS TODO TODO TODO
-            ledflash()
-            currentsnapshot = 1
-            snapshotchangeto(currentsnapshot)
-            switchmidiupdate()
-            dialmidiupdate()
-        elif button2.value == False and button3.value == False:
-            print('%%%%%%%%%%%%%%%%%Next Patch selected.................')
-            midiuart.write(bytes([0xB0, 72, 127])) # CC72 = 0 TEST THIS TODO TODO TODO
-            ledflash()
-            currentsnapshot = 1
-            snapshotchangeto(currentsnapshot)
-            switchmidiupdate()
-            dialmidiupdate()
-        elif button1.value == False:
+        if button1.value == False:
+        # BUTTON FOR CC100
+        # CC100 = 0 or 127 on or off switch 1
             if button1_led.value == False:
-                snapshotchangeto(2)
+                midiuart.write(bytes([0xB0, 100, 127]))
                 button1_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 100, 0]))
+                button1_led.value = False
+                
+        elif button2.value == False:
+        # Button for CC101
+        # CC101 = 0 or 127 on or off switch 2
+            if button2_led.value == False:
+                midiuart.write(bytes([0xB0, 101, 127]))
+                button2_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 101, 0]))
+                button2_led.value = False
+                
+        elif button3.value == False:
+        # Button for CC102
+        # CC102 = 0 or 127 on or off switch 3
+            if button3_led.value == False:
+                midiuart.write(bytes([0xB0, 102, 127]))
+                button3_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 102, 0]))
+                button3_led.value = False
+                
+        elif button4.value == False:
+        # BUTTON FOR SNAPSHOTS
+            if button4_led.value == False:
+                snapshotchangeto(2)
+                button4_led.value = True
                 time.sleep(0.2)
             else:
                 snapshotchangeto(1)
-                button1_led.value = False
+                button4_led.value = False
                 time.sleep(0.2)
-        elif button2.value == False:
-            #Setup as a Tap Tempo
+
+        elif button5.value == False:
+        # Button for PATCHES
+            if currentpatch < 4:
+                currentpatch +=1
+            else:
+                currentpatch = 0
+            midiuart.write(bytes([0xC0, currentpatch]))
+            button5_led.value = True
+            print('CURRENTPATCH: ' + str(currentpatch))
+            time.sleep(0.08)        # Add a little delay time for buttons to stabalize after release
+
+        elif button6.value == False:
+        # Button for TAP / TUNER
             #Send Tap Message
             midiuart.write(bytes([0xB0, 64, 127]))
             print('TAP Sent')
@@ -224,31 +235,18 @@ while True:
                 print('Switching Tuner mode OFF')
                 midiuart.write(bytes([0xB0, 68, 0]))
                 tunerenabled = False
-            button2_led.value = True
+            button6_led.value = True
             time.sleep(0.05)
             #button help variable to track length of hold and turn on tuner when reached
             buttonheld = 0
-            while button2.value == False:
+            while button6.value == False:
                 buttonheld += 1
                 time.sleep(0.05)
                 if buttonheld == 20:
                     print('Switching Tuner mode ON')
                     midiuart.write(bytes([0xB0, 68, 127]))
                     tunerenabled = True
-            button2_led.value = False
-            
-        elif button3.value == False:
-            if button3_led.value == False:
-                if currentpatch < 4:
-                    currentpatch +=1
-                else:
-                    currentpatch = 0
-                midiuart.write(bytes([0xC0, currentpatch]))
-                button3_led.value = True
-                print('CURRENTPATCH: ' + str(currentpatch))
-                time.sleep(0.08)
-
-        # Add a little delay time for buttons to stabalize after release
+            button6_led.value = False
         time.sleep(0.06)
 
 # SECOND STEP DIAL PROCESSING:
@@ -301,8 +299,3 @@ while True:
         dial2_lastvalue = dial2_currentvalue
         # update dial effect bypass state
 
-
-# Debugging section for serial monitoring
-    #counter += 1
-    #print(counter)
-    #zakserialdebug(0)
