@@ -1,32 +1,28 @@
-picohx
+picohx  - For 6 button 2 dial pedal
 
-Test version to try using diffent button layout.\
+TODO:
+Change Snapshot button so it moves through three snapshots in order
+    1,2,3 and changes led from green->yellow->red
 
-Use Switch 1 to toggle snapshot 1 / 2
-Use switch 2 to set to work as tap tempo button
-Use switch 3 to swap between Patch 1, Patch 2, Patch 3, Patch 4
+3 on/off buttons for CC100-102
+Toggle snapshot 1/2 button
+Tap/tuner button 
+Patch change button moves through patches in order 0-3
 
 Circutipython midi foot controller for HX Stomp.
 
-
 Midi Command on HX stomp:
-CC72 = 127 - Move to next preset
-CC72 = 0 - Move to previous preset
 
-CC69 = 0 - Select snapshot 1
-CC69 = 1 - Select snapshot 2
-CC69 = 2 - Select snapshot 3
+CC69 = 0-2  - Select snapshot 1-3
 
-CC110 (was:CC80) = 0-127 - Dial 1 Potentiometer. (Reverb mix)  Do I need to divide by 100.  to control mix from 0-100?
-CC112 (was:CC81) = 0-127 - Dial 2 Potentiometer. (Volume mix)
-CC111 (was:CC90) = 0 or 127 - Dial 1 on low value can bypass an effect 
-CC113 (was:CC91) - 0 or 127 - Dial 2 on low value can bypass an effect
+CC110 = 0-127 - Dial 1 Potentiometer. (Reverb mix) 
+CC111 = 0 or 127 - Dial 1 on low value can bypass an effect 
+CC112 = 0-127 - Dial 2 Potentiometer. (Volume mix)
+CC113 = 0 or 127 - Dial 2 on low value can bypass an effect
 
-
-CC100 = 0 or 127 - Switch 1 Returns a true or false value
-CC101 = 0 or 127 - Switch 2 Returns a true or false value
-CC102 = 0 or 127 - Switch 3 Returns a true or false value
-
+CC100 = 0 or 127 - FX1 button
+CC101 = 0 or 127 - FX2 button
+CC102 = 0 or 127 - FX3 button
 
 GPIO Pins:
 Dial 1: GP28
@@ -36,8 +32,7 @@ Common Reference Voltage: Pin 35 - ADC_VREF
 MIDI Pins: GP4 send, GP5 receive (not currently used)
 
 
-
-Midi Send Notes:
+Midi Send Notes/Examples:
 Send midi message to uart with:
 midiuart.write(bytes([0xB0, 72, 0])) # CC72 = 0 - next patch
 midiuart.write(bytes([0xB0, 72, 127])) # CC72 = 127 - previous patch
@@ -47,14 +42,4 @@ midiuart.write(bytes([0xB0, 101, i])) # CC101 = 0 or 127 on or off switch 2
 
 
 Midi Tutorial:
-
 https://learn.sparkfun.com/tutorials/midi-tutorial/all
-
-
-
-
-
-
-
-
-

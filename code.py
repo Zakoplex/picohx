@@ -80,7 +80,7 @@ midiuart = busio.UART(tx=board.GP4, rx=board.GP5, baudrate=31250)
 
 currentsnapshot = 1
 currentpatch = 0
-tunerenabled = True
+tunerenabled = False
 
 
 # Function Definitions:
@@ -174,65 +174,9 @@ while True:
         time.sleep(0.02)
 
         if button1.value == False:
-        # BUTTON FOR CC100
-        # CC100 = 0 or 127 on or off switch 1
             print('**** Button 1 pressed')
-            if button1_led.value == False:
-                midiuart.write(bytes([0xB0, 100, 127]))
-                button1_led.value = True
-            else:
-                midiuart.write(bytes([0xB0, 100, 0]))
-                button1_led.value = False
-                
-        elif button2.value == False:
-        # Button for CC101
-        # CC101 = 0 or 127 on or off switch 2
-            print('**** Button 2 pressed')
-            if button2_led.value == False:
-                midiuart.write(bytes([0xB0, 101, 127]))
-                button2_led.value = True
-            else:
-                midiuart.write(bytes([0xB0, 101, 0]))
-                button2_led.value = False
-                
-        elif button3.value == False:
-        # Button for CC102
-        # CC102 = 0 or 127 on or off switch 3
-            print('**** Button 3 pressed')
-            if button3_led.value == False:
-                midiuart.write(bytes([0xB0, 102, 127]))
-                button3_led.value = True
-            else:
-                midiuart.write(bytes([0xB0, 102, 0]))
-                button3_led.value = False
-                
-        elif button4.value == False:
-        # BUTTON FOR SNAPSHOTS
-            print('**** Button 4 pressed')
-            if button4_led.value == False:
-                snapshotchangeto(2)
-                button4_led.value = True
-                time.sleep(0.2)
-            else:
-                snapshotchangeto(1)
-                button4_led.value = False
-                time.sleep(0.2)
-
-        elif button5.value == False:
-        # Button for PATCHES
-            print('**** Button 5 pressed')
-            if currentpatch < 4:
-                currentpatch +=1
-            else:
-                currentpatch = 0
-            midiuart.write(bytes([0xC0, currentpatch]))
-            button5_led.value = True
-            print('CURRENTPATCH: ' + str(currentpatch))
-            time.sleep(0.08)        # Add a little delay time for buttons to stabalize after release
-
-        elif button6.value == False:
-        # Button for TAP / TUNER
-            print('**** Button 6 pressed')
+            
+            #### Button for TAP/TUNER
             #Send Tap Message
             midiuart.write(bytes([0xB0, 64, 127]))
             print('TAP Sent')
@@ -241,18 +185,85 @@ while True:
                 print('Switching Tuner mode OFF')
                 midiuart.write(bytes([0xB0, 68, 0]))
                 tunerenabled = False
-            button6_led.value = True
+            button1_led.value = True
             time.sleep(0.05)
             #button help variable to track length of hold and turn on tuner when reached
             buttonheld = 0
-            while button6.value == False:
+            while button1.value == False:
                 buttonheld += 1
                 time.sleep(0.05)
                 if buttonheld == 20:
                     print('Switching Tuner mode ON')
                     midiuart.write(bytes([0xB0, 68, 127]))
                     tunerenabled = True
+            button1_led.value = False
+
+                
+        elif button2.value == False:
+            print('**** Button 2 pressed')
+            
+            #### BUTTON FOR CC100
+            # CC100 = 0 or 127 on/off
+            if button2_led.value == False:
+                midiuart.write(bytes([0xB0, 100, 127]))
+                button2_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 100, 0]))
+                button2_led.value = False
+            time.sleep(0.3)
+            
+        elif button3.value == False:
+            print('**** Button 3 pressed')
+
+            #### Button for CC101
+            # CC101 = 0 or 127 on/off
+            if button3_led.value == False:
+                midiuart.write(bytes([0xB0, 101, 127]))
+                button3_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 101, 0]))
+                button3_led.value = False
+            time.sleep(0.3)
+
+                
+        elif button4.value == False:
+            print('**** Button 4 pressed')
+            
+            #### Button for CC102
+            # CC102 = 0 or 127 on/off
+            if button4_led.value == False:
+                midiuart.write(bytes([0xB0, 102, 127]))
+                button4_led.value = True
+            else:
+                midiuart.write(bytes([0xB0, 102, 0]))
+                button4_led.value = False
+            time.sleep(0.3)
+            
+        elif button5.value == False:
+            print('**** Button 5 pressed')
+            
+            #### BUTTON FOR SNAPSHOTS
+            if button5_led.value == False:
+                snapshotchangeto(2)
+                button5_led.value = True
+            else:
+                snapshotchangeto(1)
+                button5_led.value = False
+            time.sleep(0.2)
+
+        elif button6.value == False:
+        
+            #### Button for PATCHES 0 index
+            if currentpatch < 4:
+                currentpatch +=1
+            else:
+                currentpatch = 0
+            midiuart.write(bytes([0xC0, currentpatch]))
+            button6_led.value = True
+            print('CURRENTPATCH: ' + str(currentpatch))
+            time.sleep(0.08)        # Add a little delay time for buttons to stabalize after release
             button6_led.value = False
+            
         time.sleep(0.06)
 
 # SECOND STEP DIAL PROCESSING:
