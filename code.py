@@ -5,7 +5,6 @@ import analogio
 import busio
 
 # ################ GLOBALS ##################
-
 # Buttons
 button1 = digitalio.DigitalInOut(board.GP1)
 button1.switch_to_input(pull=digitalio.Pull.UP)
@@ -25,7 +24,6 @@ button5.switch_to_input(pull=digitalio.Pull.UP)
 button6 = digitalio.DigitalInOut(board.GP7)
 button6.switch_to_input(pull=digitalio.Pull.UP)
 
-
 # Potentiometers
 dial1 = analogio.AnalogIn(board.GP26)
 dial2 = analogio.AnalogIn(board.GP28)
@@ -33,20 +31,15 @@ dial2 = analogio.AnalogIn(board.GP28)
 # initial pre-calibration values with diminished range which get expanded with auto-calibraion if larger range detected
 dial1_minvalue = 500
 dial1_maxvalue = 65000
-dial1_lastvalue = 32000
-dia11_currentvalue = 32000
 dial1_stepvalue = 500
 dial1_midivalue = 64
 
 dial2_minvalue = 500
 dial2_maxvalue = 65000
-dial2_lastvalue = 32000
-dial2_currentvalue = 32000
 dial2_stepvalue = 500
 dial2_midivalue = 64
 
-
-# LEDS for board & Dial 1 & 2
+# LEDS
 led0 = digitalio.DigitalInOut(board.LED)
 led0.direction = digitalio.Direction.OUTPUT
 
@@ -127,7 +120,7 @@ def snapshotchangeto(i):
     global currentsnapshot
     #update current snapshot and LED on.
     #accept a value of 1-3 and send a midi message with a zero indexed value (0-2)
-    print('%%%%%%%%%%%%%%%%%%%%Snapshot ' + str(i))  # display a message on the terminal that it worked
+    print('%%%% Snapshot ' + str(i))  # display a message on the terminal that it worked
     currentsnapshot = i
     midiuart.write(bytes([0xB0, 69, (i-1)])) # CC69 = 0,1, or 2 TEST THIS TODO TODO TODO
     time.sleep(0.01) # small delay to prevent multiple sends from human latency of foot press
@@ -135,7 +128,7 @@ def snapshotchangeto(i):
 
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
-    print('%%%%%%%%%%%%%%%%% Dials Midi Update')
+    print('%%%% Dials Midi Update')
     midiuart.write(bytes([0xB0, 110, dial1_midivalue]))
     midiuart.write(bytes([0xB0, 112, dial2_midivalue]))
     # update dial effect bypass state
@@ -167,8 +160,8 @@ dialmidiupdate()
 
 # Main program run loop
 while True:
-    time.sleep(0.0025) # set rate of loop to 1/300 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
-    #time.sleep(1) # DEBUG RATE SET
+    #time.sleep(0.0025) # set rate of loop to 1/300 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
+    time.sleep(1) # DEBUG RATE SET
 
 # FIRST STEP, READ BUTTONS AND PROCESS SNAPSHOTS, PROGRAM CHANGES, CONTINUOUS CONTROLS
 # SECOND STEP, READ AND PROCESS DIALS AND SEND APPROPREATE CC MESSAGES
@@ -176,7 +169,7 @@ while True:
     # False indicates a button press
     # Read the status of all buttons and decided what the user is trying to do
     if button1.value == False or button2.value == False or button3.value == False or button4.value == False or button5.value == False or button6.value == False:
-        print('****************reading buttons')
+        print('**** reading buttons')
         # Add a little delay time to allow physical button press to stabalize
         time.sleep(0.02)
 
@@ -291,53 +284,52 @@ while True:
         time.sleep(0.06)
 
 # SECOND STEP DIAL PROCESSING:
-    # Run Dials auto-calibration & send Midi CC message if updated
-    # Also, send a dial upate every x pass through the run loop as the HX Stomp misses updates sent at the same time as patch changes
-
-    # read curren dial value for next calculations
-    dial1_currentvalue = dial1.value
-    dial2_currentvalue = dial2.value
-#    print(str(dial1_currentvalue) + " " + str(dial1_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
-#    print(str(dial2_currentvalue) + " " + str(dial2_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
+#    print(str(dial1.value) + " " + str(dial1_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
+#    print(str(dial2.value) + " " + str(dial2_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
 #    time.sleep(0.5) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
 
-    # Check current max and min values for dials and update min / max range
-    # and adjust default values to expand range
-    if dial1_currentvalue < dial1_minvalue:
-        dial1_minvalue = dial1_currentvalue
-    if dial1_currentvalue > dial1_maxvalue:
-        dial1_maxvalue = dial1_currentvalue
-    if dial2_currentvalue < dial2_minvalue:
-        dial2_minvalue = dial2_currentvalue
-    if dial2_currentvalue > dial2_maxvalue:
-        dial2_maxvalue = dial2_currentvalue
+    # Check current max and min values for dials and auto-calibrate
+    if dial1.value < dial1_minvalue:
+        dial1_minvalue = dial1.value
+
+    if dial1.value > dial1_maxvalue:
+        dial1_maxvalue = dial1.value
+
+    if dial2.value < dial2_minvalue:
+        dial2_minvalue = dial2.value
+
+    if dial2.value > dial2_maxvalue:
+        dial2_maxvalue = dial2.value
 
     # recaltulate step values
-    dial1_stepvalue = (dial1_maxvalue - dial1_minvalue) / 127
-    dial2_stepvalue = (dial2_maxvalue - dial2_minvalue) / 127
+    dial1_stepvalue = int((dial1_maxvalue - dial1_minvalue) / 127)
+    dial2_stepvalue = int((dial2_maxvalue - dial2_minvalue) / 127)
 
-    # THE CURRENT VALUE OF THE DIAL HAS CHANGED MORE THAN A STEP VALUE UP OR DOWN THEN UPDATE THE LAST VALUE & SEND A CC for value and bypass
-    dial1changevalue = (dial1_currentvalue - dial1_lastvalue) / dial1_stepvalue
-    if (dial1changevalue >= 1 or dial1changevalue <= -1):
-        dial1_midivalue = int(dial1_currentvalue / dial1_stepvalue)
-        if dial1_midivalue > 127:  # Fix for first iteration reading above 127
-            dial1_midivalue = 127
-        print('%%%%%%%%%%%%%%%%DIAL 1 MOVED - Midi Value: ' + str(dial1_midivalue))
+    # THE CURRENT VALUE OF THE DIAL HAS CHANGED MORE THAN A STEP VALUE UP OR DOWN THEN UPDATE THE LAST VALUE & SEND A CC for value and bypas
+    if (int(dial1.value / dial1_stepvalue) != dial1_midivalue):
+        print('%%%% DIAL 1 MOVED')
+        dial1_midivalue = int(dial1.value / dial1_stepvalue)
+
         dialmidiupdate()
-        # update for next iteration
-        dial1_lastvalue = dial1_currentvalue
-        print(str(dial1_currentvalue) + " " + str(dial1_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
+        # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
+        print("Min Val: " + str(dial1_minvalue))
+        print("Current: " + str(dial1.value))
+        print("Max Val: " + str(dial1_maxvalue))
+        print("Step   : " + str(dial1_stepvalue))
+        print("MIDI   : " + str(dial1_midivalue))
+        print("TestVal: " + str(int(dial1.value / dial1_stepvalue)))
+        print("")
 
-    dial2changevalue = (dial2_currentvalue - dial2_lastvalue) / dial2_stepvalue
-    if (dial2changevalue >= 1 or dial2changevalue <= -1):
-        dial2_midivalue = int(dial2_currentvalue / dial2_stepvalue)
-        if dial2_midivalue > 127:  # Fix for first iteration reading above 127
-            dial2_midivalue = 127
-        print('%%%%%%%%%%%%%%%%DIAL 2 MOVED - Midi Value: ' + str(dial2_midivalue))
+
+    if (int(dial2.value / dial2_stepvalue) != dial2_midivalue):
+        dial2_midivalue = int(dial2.value / dial2_stepvalue)
+        print('%%%% DIAL 2 MOVED')
+
         dialmidiupdate()
-        # update for next iteration
-        dial2_lastvalue = dial2_currentvalue
-        print(str(dial2_currentvalue) + " " + str(dial2_stepvalue)) # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
-
-
-
+        print("Min Val: " + str(dial2_minvalue))
+        print("Current: " + str(dial2.value))
+        print("Max Val: " + str(dial2_maxvalue))
+        print("Step   : " + str(dial2_stepvalue))
+        print("MIDI   : " + str(dial2_midivalue))
+        print("TestVal: " + str(int(dial2.value / dial2_stepvalue)))
+        print("")
