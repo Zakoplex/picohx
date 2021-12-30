@@ -160,7 +160,7 @@ dialmidiupdate()
 
 # Main program run loop
 while True:
-    #time.sleep(0.0025) # set rate of loop to 1/300 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
+    #time.sleep(0.0025) # set rate of loop to 1/400 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
     time.sleep(1) # DEBUG RATE SET
 
 # FIRST STEP, READ BUTTONS AND PROCESS SNAPSHOTS, PROGRAM CHANGES, CONTINUOUS CONTROLS
@@ -305,31 +305,37 @@ while True:
     dial1_stepvalue = int((dial1_maxvalue - dial1_minvalue) / 127)
     dial2_stepvalue = int((dial2_maxvalue - dial2_minvalue) / 127)
 
-    # THE CURRENT VALUE OF THE DIAL HAS CHANGED MORE THAN A STEP VALUE UP OR DOWN THEN UPDATE THE LAST VALUE & SEND A CC for value and bypas
-    if (int(dial1.value / dial1_stepvalue) != dial1_midivalue):
-        print('%%%% DIAL 1 MOVED')
-        dial1_midivalue = int(dial1.value / dial1_stepvalue)
+    # THE CURRENT VALUE OF THE DIAL HAS CHANGED MORE THAN A STEP VALUE UP OR DOWN THEN UPDATE THE LAST VALUE & SEND A CC for value and bypass
+    # read dial value once for use in following calculations to prevent jitter from having different results in multiple comparisons
+    dial1current = dial1.value
+    dial2current = dial2.value
+    dial1selectedmidi = int(dial1current / dial1_stepvalue)
+    dial2selectedmidi = int(dial2current / dial2_stepvalue)
 
+    if (dial1selectedmidi != dial1_midivalue):
+        print('%%%% DIAL 1 MOVED')
+        dial1_midivalue = dial1selectedmidi
         dialmidiupdate()
+
         # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
         print("Min Val: " + str(dial1_minvalue))
-        print("Current: " + str(dial1.value))
+        print("Current: " + str(dial1current))
         print("Max Val: " + str(dial1_maxvalue))
         print("Step   : " + str(dial1_stepvalue))
+        print("Select : " + str(dial1selectedmidi))
         print("MIDI   : " + str(dial1_midivalue))
-        print("TestVal: " + str(int(dial1.value / dial1_stepvalue)))
         print("")
 
 
-    if (int(dial2.value / dial2_stepvalue) != dial2_midivalue):
-        dial2_midivalue = int(dial2.value / dial2_stepvalue)
+    if (dial2selectedmidi != dial2_midivalue):
         print('%%%% DIAL 2 MOVED')
-
+        dial2_midivalue = dial2selectedmidi
         dialmidiupdate()
+
         print("Min Val: " + str(dial2_minvalue))
-        print("Current: " + str(dial2.value))
+        print("Current: " + str(dial2current))
         print("Max Val: " + str(dial2_maxvalue))
         print("Step   : " + str(dial2_stepvalue))
+        print("Select : " + str(dial2selectedmidi))
         print("MIDI   : " + str(dial2_midivalue))
-        print("TestVal: " + str(int(dial2.value / dial2_stepvalue)))
         print("")
