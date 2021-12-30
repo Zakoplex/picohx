@@ -27,8 +27,8 @@ button6.switch_to_input(pull=digitalio.Pull.UP)
 
 
 # Potentiometers
-dial1 = analogio.AnalogIn(board.GP28)
-dial2 = analogio.AnalogIn(board.GP27)
+dial1 = analogio.AnalogIn(board.GP26) #was 28 pre testing hardware
+dial2 = analogio.AnalogIn(board.GP28)
 # initial pre-calibration values with diminished range.
 dial1_minvalue = 1000
 # set last value for auto-calibrate decision to update range or send cc
@@ -87,34 +87,34 @@ tunerenabled = False
 
 # Lightshow for startup.
 def blinkies():
-    for x in range (0,10):
+    for x in range (0,8):
         dial1_led.value = True
         time.sleep(0.0015)
         button1_led.value = True
         time.sleep(0.0015)
-        button2_led.value = True
-        time.sleep(0.015)
-        button3_led.value = True
-        time.sleep(0.015)
-        button4_led.value = True
-        time.sleep(0.015)
-        button5_led.value = True
-        time.sleep(0.015)
-        button6_led.value = True
-        time.sleep(0.015)
-        dial2_led.value = True
-        time.sleep(0.015)
         dial1_led.value = False
+        time.sleep(0.015)
+        button2_led.value = True
         time.sleep(0.015)
         button1_led.value = False
         time.sleep(0.015)
+        button3_led.value = True
+        time.sleep(0.015)
         button2_led.value = False
+        time.sleep(0.015)
+        button4_led.value = True
         time.sleep(0.015)
         button3_led.value = False
         time.sleep(0.015)
+        button5_led.value = True
+        time.sleep(0.015)
         button4_led.value = False
         time.sleep(0.015)
+        button6_led.value = True
+        time.sleep(0.015)
         button5_led.value = False
+        time.sleep(0.015)
+        dial2_led.value = True
         time.sleep(0.015)
         button6_led.value = False
         time.sleep(0.015)
@@ -139,15 +139,19 @@ def dialmidiupdate():
     # update dial effect bypass state
     if (dial1_midivalue < 2):
         midiuart.write(bytes([0xB0, 111, 0]))
+        dial1_led.value = False
         print('DIAL 1 MIDI BLOCK BYPASSED CC111')
     else:
         midiuart.write(bytes([0xB0, 111, 127]))
+        dial1_led.value = True
         print('DIAL 1 MIDI BLOCK ACTTVE CC111')
     if (dial2_midivalue < 2):
         midiuart.write(bytes([0xB0, 113, 0]))
+        dial2_led.value = False
         print('DIAL 2 MIDI BLOCK BYPASSED CC113')
     else:
         midiuart.write(bytes([0xB0, 113, 127]))
+        dial2_led.value = True
         print('DIAL 2 MIDI BLOCK ACTIVE CC113')
 
 # Program start
@@ -180,28 +184,38 @@ while True:
             #Send Tap Message
             midiuart.write(bytes([0xB0, 64, 127]))
             print('TAP Sent')
+            
             # Turn off tuner on first press of tap button if it is on
             if tunerenabled == True:
                 print('Switching Tuner mode OFF')
                 midiuart.write(bytes([0xB0, 68, 0]))
                 tunerenabled = False
+                button1_led.value = False
+                time.sleep(0.03)
+            # Flash led on each tap
             button1_led.value = True
-            time.sleep(0.05)
+            time.sleep(0.03)
+            button1_led.value = False
+            
             #button help variable to track length of hold and turn on tuner when reached
             buttonheld = 0
             while button1.value == False:
                 buttonheld += 1
+                if buttonheld == 10: button1_led.value = True
                 time.sleep(0.05)
+                if buttonheld == 10: button1_led.value = False
                 if buttonheld == 20:
                     print('Switching Tuner mode ON')
                     midiuart.write(bytes([0xB0, 68, 127]))
                     tunerenabled = True
-            button1_led.value = False
-
-                
+                    for x in range(0,4):
+                        button1_led.value = False
+                        time.sleep(0.04)
+                        button1_led.value = True
+                        time.sleep(0.1)
+              
         elif button2.value == False:
             print('**** Button 2 pressed')
-            
             #### BUTTON FOR CC100
             # CC100 = 0 or 127 on/off
             if button2_led.value == False:
@@ -210,11 +224,10 @@ while True:
             else:
                 midiuart.write(bytes([0xB0, 100, 0]))
                 button2_led.value = False
-            time.sleep(0.3)
+            time.sleep(0.2)
             
         elif button3.value == False:
             print('**** Button 3 pressed')
-
             #### Button for CC101
             # CC101 = 0 or 127 on/off
             if button3_led.value == False:
@@ -223,12 +236,10 @@ while True:
             else:
                 midiuart.write(bytes([0xB0, 101, 0]))
                 button3_led.value = False
-            time.sleep(0.3)
-
+            time.sleep(0.2)
                 
         elif button4.value == False:
             print('**** Button 4 pressed')
-            
             #### Button for CC102
             # CC102 = 0 or 127 on/off
             if button4_led.value == False:
@@ -237,11 +248,10 @@ while True:
             else:
                 midiuart.write(bytes([0xB0, 102, 0]))
                 button4_led.value = False
-            time.sleep(0.3)
+            time.sleep(0.2)
             
         elif button5.value == False:
             print('**** Button 5 pressed')
-            
             #### BUTTON FOR SNAPSHOTS
             if button5_led.value == False:
                 snapshotchangeto(2)
@@ -249,12 +259,11 @@ while True:
             else:
                 snapshotchangeto(1)
                 button5_led.value = False
-            time.sleep(0.2)
+            time.sleep(0.17)
 
         elif button6.value == False:
-        
             #### Button for PATCHES 0 index
-            if currentpatch < 4:
+            if currentpatch < 3:
                 currentpatch +=1
             else:
                 currentpatch = 0
@@ -269,8 +278,7 @@ while True:
 # SECOND STEP DIAL PROCESSING:
     # Run Dials auto-calibration & send Midi CC message if updated
     # Also, send a dial update every x pass through the run loop as the HX Stomp misses updates sent at the same time as patch changes
-
-
+    
     # read curren dial value for next calculations
     dial1_currentvalue = dial1.value
     dial2_currentvalue = dial2.value
@@ -278,13 +286,10 @@ while True:
     # Check current max and min values for dials and update min / max range
     if dial1_currentvalue < dial1_minvalue:
         dial1_minvalue = dial1_currentvalue
-
     if dial1_currentvalue > dial1_maxvalue:
         dial1_maxvalue = dial1_currentvalue
-
     if dial2_currentvalue < dial2_minvalue:
         dial2_minvalue = dial2_currentvalue
-
     if dial2_currentvalue > dial2_maxvalue:
         dial2_maxvalue = dial2_currentvalue
 
@@ -300,7 +305,6 @@ while True:
             dial1_midivalue = 127
         print('%%%%%%%%%%%%%%%%DIAL 1 MOVED - Midi Value: ' + str(dial1_midivalue))
         dialmidiupdate()
-        # was midiuart.write(bytes([0xB0, 80, dial1_midivalue]))
         # update for next iteration
         dial1_lastvalue = dial1_currentvalue
 
@@ -312,7 +316,5 @@ while True:
             dial2_midivalue = 127
         print('%%%%%%%%%%%%%%%%DIAL 2 MOVED - Midi Value: ' + str(dial2_midivalue))
         dialmidiupdate()
-        #was midiuart.write(bytes([0xB0, 81, dial2_midivalue]))
+        # update for next iteration
         dial2_lastvalue = dial2_currentvalue
-        # update dial effect bypass state
-
