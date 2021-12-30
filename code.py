@@ -129,6 +129,12 @@ def snapshotchangeto(i):
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
     print('%%%% Dials Midi Update')
+    if dial1_midivalue > 127:
+        print("Midi value too high")
+        return
+    if dial1_midivalue < 0:
+        print("Midi value too low")
+        return
     midiuart.write(bytes([0xB0, 110, dial1_midivalue]))
     midiuart.write(bytes([0xB0, 112, dial2_midivalue]))
     # update dial effect bypass state
@@ -151,7 +157,7 @@ def dialmidiupdate():
 
 # Program start
 
-######################blinkies()
+blinkies()
 
 led0.value = True # use onboard led as a power indicator
 
@@ -160,8 +166,8 @@ dialmidiupdate()
 
 # Main program run loop
 while True:
-    #time.sleep(0.0025) # set rate of loop to 1/400 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
-    time.sleep(1) # DEBUG RATE SET
+    time.sleep(0.0025) # set rate of loop to 1/400 second. Midi async bitrate is 31250bps or 3125B/sec midi messages are 3 Bytes so 1000 per second max.
+    #time.sleep(1) # DEBUG RATE SET
 
 # FIRST STEP, READ BUTTONS AND PROCESS SNAPSHOTS, PROGRAM CHANGES, CONTINUOUS CONTROLS
 # SECOND STEP, READ AND PROCESS DIALS AND SEND APPROPREATE CC MESSAGES
@@ -312,9 +318,19 @@ while True:
     dial1selectedmidi = int(dial1current / dial1_stepvalue)
     dial2selectedmidi = int(dial2current / dial2_stepvalue)
 
-    if (dial1selectedmidi != dial1_midivalue):
+    # Only send midi dial is more than 1.5 step values from current raw value.  Pots jitter more than one step and spam midi outherwise.
+    if dial1current <  ((dial1_midivalue * dial1_stepvalue) - (1.75 * dial1_stepvalue)) or dial1current > ((dial1_midivalue * dial1_stepvalue) + (1.75 * dial1_stepvalue)):
         print('%%%% DIAL 1 MOVED')
         dial1_midivalue = dial1selectedmidi
+
+        # Sticky for midi values of 0 or 127
+        if dial1selectedmidi <= 1:
+            print("Sticky dial1 low")
+            dial1_midivalue = 0
+        if dial1selectedmidi >=126:
+            print("Sticky dial1 high")
+            dial1_midivalue = 127
+
         dialmidiupdate()
 
         # FOR DEBUG TO VIEW ACTUAL VALUES OF POTS
@@ -327,9 +343,18 @@ while True:
         print("")
 
 
-    if (dial2selectedmidi != dial2_midivalue):
+    if dial2current <  ((dial2_midivalue * dial2_stepvalue) - (1.75 * dial2_stepvalue)) or dial2current >  ((dial2_midivalue * dial2_stepvalue) + (1.75 * dial2_stepvalue)):
         print('%%%% DIAL 2 MOVED')
         dial2_midivalue = dial2selectedmidi
+
+         # Sticky for midi values of 0 or 127
+        if dial2selectedmidi <= 1:
+            print("Sticky dial1 low")
+            dial2_midivalue = 0
+        if dial2selectedmidi >=126:
+            print("Sticky dial1 high")
+            dial2_midivalue = 127
+
         dialmidiupdate()
 
         print("Min Val: " + str(dial2_minvalue))
@@ -339,3 +364,5 @@ while True:
         print("Select : " + str(dial2selectedmidi))
         print("MIDI   : " + str(dial2_midivalue))
         print("")
+
+
