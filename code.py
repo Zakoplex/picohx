@@ -270,9 +270,10 @@ while True:
             midiuart.write(bytes([0xC0, currentpatch]))
             button6_led.value = True
             print('CURRENTPATCH: ' + str(currentpatch))
-            time.sleep(0.08)        # Add a little delay time for buttons to stabalize after release
+            time.sleep(0.03)        # Add a little delay time for buttons to stabalize after release
             button6_led.value = False
-            
+            time.sleep(0.07)
+        
         time.sleep(0.06)
 
 # SECOND STEP DIAL PROCESSING:
