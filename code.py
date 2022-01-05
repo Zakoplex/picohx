@@ -149,6 +149,16 @@ def dialmidiupdate():
         dial2_led.value = True
         # print('DIAL 2 MIDI BLOCK ACTIVE CC113')
 
+# turn off effects buttons and send midi off states (buttons 2-4)
+def effectsbuttonsoff():
+    print('%%%% Effects buttons off')
+    midiuart.write(bytes([0xB0, 100, 0]))
+    button2_led.value = False
+    midiuart.write(bytes([0xB0, 101, 0]))
+    button3_led.value = False
+    midiuart.write(bytes([0xB0, 102, 0]))
+    button4_led.value = False
+
 # Program start
 
 blinkies()
@@ -272,6 +282,8 @@ while True:
             midiuart.write(bytes([0xC0, currentpatch]))
             #update dial values after patch change
             dialmidiupdate()
+            #turn off effects buttons with patch change
+            effectsbuttonsoff()
             button6_led.value = True
             print('CURRENTPATCH: ' + str(currentpatch))
             # Add a little delay time for buttons to stabalize after release and for a LED blinks
