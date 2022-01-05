@@ -122,19 +122,13 @@ def snapshotchangeto(i):
     #accept a value of 1-3 and send a midi message with a zero indexed value (0-2)
     print('%%%% Snapshot ' + str(i))  # display a message on the terminal that it worked
     currentsnapshot = i
-    midiuart.write(bytes([0xB0, 69, (i-1)])) # CC69 = 0,1, or 2 TEST THIS TODO TODO TODO
+    midiuart.write(bytes([0xB0, 69, (i-1)])) # CC69 = 0,1, or 2
     time.sleep(0.01) # small delay to prevent multiple sends from human latency of foot press
 
 
 # send new midi values of dial positions and bypass state
 def dialmidiupdate():
     print('%%%% Dials Midi Update')
-    if dial1_midivalue > 127:
-        print("Midi value too high")
-        return
-    if dial1_midivalue < 0:
-        print("Midi value too low")
-        return
     midiuart.write(bytes([0xB0, 110, dial1_midivalue]))
     midiuart.write(bytes([0xB0, 112, dial2_midivalue]))
     # update dial effect bypass state
@@ -260,9 +254,12 @@ while True:
             #### BUTTON FOR SNAPSHOTS
             if button5_led.value == False:
                 snapshotchangeto(2)
+                #update dial values after snapshot change
+                dialmidiupdate()
                 button5_led.value = True
             else:
                 snapshotchangeto(1)
+                dialmidiupdate()
                 button5_led.value = False
             time.sleep(0.2)
 
@@ -273,6 +270,8 @@ while True:
             else:
                 currentpatch = 0
             midiuart.write(bytes([0xC0, currentpatch]))
+            #update dial values after patch change
+            dialmidiupdate()
             button6_led.value = True
             print('CURRENTPATCH: ' + str(currentpatch))
             # Add a little delay time for buttons to stabalize after release and for a LED blinks
@@ -323,7 +322,7 @@ while True:
         print('%%%% DIAL 1 MOVED')
         dial1_midivalue = dial1selectedmidi
 
-        # Sticky for midi values of 0 or 127
+        # Sticky for midi values of 0 or 127 and prevent invalid midi values
         if dial1selectedmidi <= 1:
             print("Sticky dial1 low")
             dial1_midivalue = 0
