@@ -29,7 +29,7 @@ Dial 1: GP28
 Dial 2: GP27
 Common Reference Voltage: Pin 35 - ADC_VREF
 
-MIDI Pins: GP4 send, GP5 receive (not currently used)
+MIDI Pins: GP4 send, GP5 receive (not currently used needs optocoupler)
 
 
 Midi Send Notes/Examples:

@@ -280,6 +280,9 @@ while True:
             else:
                 currentpatch = 0
             midiuart.write(bytes([0xC0, currentpatch]))
+            #set move pedal back to snapshot 1 on patch change
+            snapshotchangeto(1)
+            button5_led.value = False
             #update dial values after patch change
             dialmidiupdate()
             #turn off effects buttons with patch change
